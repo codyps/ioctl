@@ -1,5 +1,5 @@
 #[macro_use]
-extern crate ioctl_sys;
+extern crate ioctl_base;
 
 ioctl!(bad kiocsound with 0x4B2F);
 ioctl!(none drm_ioctl_set_master with b'd', 0x1e);

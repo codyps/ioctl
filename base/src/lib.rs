@@ -1,8 +1,5 @@
 use std::os::raw::{c_int, c_ulong};
 
-#[doc(hidden)]
-pub extern crate libc;
-
 #[cfg(target_os = "linux")]
 #[path = "platform/linux.rs"]
 #[macro_use]

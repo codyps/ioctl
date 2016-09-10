@@ -1,0 +1,14 @@
+[package]
+name = "ioctl-base"
+version = "0.5.0"
+authors = ["Cody P Schafer <dev@codyps.com>", "Corey Richardson <corey@octayn.net>"]
+description = "IO Control for POSIX-and-beyond systems (core fn & macros)"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/jmesmon/ioctl"
+documentation = "https://cmr.github.io/ioctl"
+include = ["Cargo.toml", "**/*.rs"]
+
+[dependencies]
+
+[features]
+unstable = []
