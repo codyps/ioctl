@@ -7,12 +7,14 @@ pub const TYPEBITS: u32 = 8;
 #[path = "linux.rs"]
 mod consts;
 
-#[cfg(target_os = "macos")]
-#[path = "macos.rs"]
-mod consts;
-
-#[cfg(target_os = "openbsd")]
-#[path = "openbsd.rs"]
+#[cfg(any(
+    target_os = "macos",
+    target_os = "openbsd",
+    target_os = "freebsd",
+    target_os = "netbsd",
+    target_os = "dragonfly",
+))]
+#[path = "bsd.rs"]
 mod consts;
 
 #[doc(hidden)]

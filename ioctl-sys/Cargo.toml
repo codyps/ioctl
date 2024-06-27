@@ -9,3 +9,7 @@ documentation = "https://docs.rs/ioctl-sys"
 include = ["Cargo.toml", "**/*.rs"]
 
 [dependencies]
+
+[dev-dependencies]
+# Only for the ioctl test
+libc = "0.2"

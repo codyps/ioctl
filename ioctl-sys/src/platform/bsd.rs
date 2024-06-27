@@ -1,3 +1,4 @@
+/// Constants for BSD-derived operating systems. Confirmed to work on macOS, FreeBSD, OpenBSD.
 #[cfg(any(target_arch = "aarch64", target_arch = "x86_64"))]
 mod consts {
     #[doc(hidden)]
