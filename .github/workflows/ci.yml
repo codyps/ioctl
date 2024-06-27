@@ -1,37 +1,85 @@
 on:
+  workflow_dispatch:
   pull_request:
   push:
+    tags: ["v*.*.*"]
     branches-ignore:
       - '**.tmp'
 
-name: ci
+name: Continuous Integration
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  test-sys:
+    name: Build and test the sys crate / ${{matrix.target}}
+    runs-on: ${{matrix.host_os}}
     strategy:
+      fail-fast: false
       matrix:
-        rust:
-          - stable
-          - beta
-          - nightly
-          - 1.47.0
+        include:
+          - target: x86_64-unknown-linux-gnu
+            host_os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            host_os: macos-latest
+          - target: x86_64-unknown-freebsd
+            host_os: ubuntu-latest
+            vm_action: vmactions/freebsd-vm@v1
+          - target: x86_64-unknown-openbsd
+            host_os: ubuntu-latest
+            vm_action: vmactions/openbsd-vm@v1
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
         with:
-          toolchain: ${{ matrix.rust }}
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test --all
+          key: ${{matrix.host_os}}-${{matrix.target}}-ioctl-sys
+      - name: Build for target ${{matrix.target}} with a virtual machine
+        if: matrix.vm_action != null
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            pkg_add rust
+          run: |
+            cargo test --package ioctl-sys
+      - name: Build for target ${{matrix.target}}
+        if: matrix.vm_action == null
+        run: cargo test --package ioctl-sys
 
   check:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@beta
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo fmt --all -- --check
+      - run: cargo fmt --all
       #- run: cargo clippy --all --all-targets -- -D warnings
+
+  test:
+    name: Build / ${{matrix.target}}
+    runs-on: ${{matrix.host_os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            host_os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{matrix.host_os}}-${{matrix.target}}-ioctl-sys
+      - name: Test for target ${{matrix.target}} with a virtual machine
+        if: matrix.vm_action != null
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            pkg_add rust
+          run: |
+            cargo test --all
+      - name: Test for target ${{matrix.target}}
+        if: matrix.vm_action == null
+        run: cargo test --all

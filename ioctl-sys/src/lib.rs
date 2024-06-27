@@ -1,20 +1,18 @@
 use std::os::raw::{c_int, c_ulong};
 
-#[cfg(any(
+#[cfg(not(any(
     target_os = "linux",
     target_os = "macos",
     target_os = "openbsd",
+    target_os = "freebsd",
+    target_os = "netbsd",
+    target_os = "dragonfly",
     target_os = "android"
-))]
-#[macro_use]
+)))]
+compile_error!("This platform is not supported!");
+
 mod platform;
 
-#[cfg(any(
-    target_os = "linux",
-    target_os = "macos",
-    target_os = "openbsd",
-    target_os = "android"
-))]
 pub use platform::*;
 
 extern "C" {
@@ -30,14 +28,6 @@ pub fn check_res(res: c_int) -> std::io::Result<()> {
         Ok(())
     }
 }
-
-#[cfg(not(any(
-    target_os = "linux",
-    target_os = "macos",
-    target_os = "openbsd",
-    target_os = "android"
-)))]
-use platform_not_supported;
 
 #[cfg(doctest)]
 mod test_readme {
